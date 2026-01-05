@@ -1,2 +1,3 @@
 venv/
-resultados/
+resultados/posiciones.npz
+resultados/momentos.npz
