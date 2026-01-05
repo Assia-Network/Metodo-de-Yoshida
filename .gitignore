@@ -1,3 +1,4 @@
 venv/
-resultados/posiciones.npz
 resultados/momentos.npz
+resultados/posiciones.npz
+.gitignore
