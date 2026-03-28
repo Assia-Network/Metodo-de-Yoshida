@@ -2,16 +2,33 @@ import numpy as np
 from numba import njit
 
 #Función Hamiltoniano
-def Hamiltoniano_potencial(r, p,masa,G_cnst,condicional="all"):   
-    Ec=0
-    if condicional=="cm" or condicional=="all":
-        Ec=np.sum((np.linalg.norm(p, axis=2)**2)/(2*masa), axis=1)
-    Ep=0
-    if condicional=="pos" or condicional=="all":
-        for g in range(masa.shape[0]-1):
-            for m in range(g+1, masa.shape[0]):
-                r_scalar=np.linalg.norm(r[:,g,:]-r[:,m,:], axis=1)    
-                Ep+=-G_cnst*masa[g]*masa[m]/r_scalar                 
+@njit
+def Hamiltoniano_potencial(r, p, masa, G_cnst, condicional="all"):   
+    n_batch = r.shape[0]
+    n_cuerpos = r.shape[1]
+    
+    Ec = np.zeros(n_batch)
+    if condicional == "cm" or condicional == "all":
+        for i in range(n_batch):
+            suma_ec = 0.0
+            for j in range(n_cuerpos):
+                p_norm_sq = p[i, j, 0]**2 + p[i, j, 1]**2 + p[i, j, 2]**2
+                suma_ec += p_norm_sq / (2.0 * masa[j])
+            Ec[i] = suma_ec
+            
+    Ep = np.zeros(n_batch)
+    if condicional == "pos" or condicional == "all":
+        for i in range(n_batch):
+            suma_ep = 0.0
+            for g in range(n_cuerpos - 1):
+                for m in range(g + 1, n_cuerpos):
+                    dx = r[i, g, 0] - r[i, m, 0]
+                    dy = r[i, g, 1] - r[i, m, 1]
+                    dz = r[i, g, 2] - r[i, m, 2]
+                    r_scalar = (dx**2 + dy**2 + dz**2)**0.5
+                    suma_ep -= G_cnst * masa[g] * masa[m] / r_scalar
+            Ep[i] = suma_ep
+                
     return Ec, Ep
 
 @njit

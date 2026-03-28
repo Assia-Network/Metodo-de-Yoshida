@@ -33,7 +33,7 @@ colores=[
 #PLOT
 plotter=pv.Plotter()
 plotter.background_color="black"
-step=50
+step=200
 posición_list_new=np.transpose(r, (1, 2, 0))
 for i in range(r.shape[1]):
     nube=pv.PolyData(posición_list_new[i,:,::step].T)
